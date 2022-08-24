@@ -6,11 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include<time.h>
+#include <limits.h>
+#include <time.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 #define MB * 1024 * 1024
 #define KB * 1024

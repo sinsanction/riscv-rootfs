@@ -25,7 +25,7 @@ uint64_t get_addr64_kernel(uint64_t *ptr, int i, uint8_t vwidth);
 // others
 int round_up_div(int a, int b);
 
-uint16_t handle_overflow(uint32_t tmp, uint8_t vwidth);
+uint16_t handle_overflow(int32_t tmp, uint8_t vwidth);
 
 int re_scale(int old_value, uint16_t old_scale, uint16_t old_zero, uint16_t new_scale, uint16_t new_zero);
 

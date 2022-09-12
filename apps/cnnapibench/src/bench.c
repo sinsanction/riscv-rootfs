@@ -50,6 +50,8 @@ int main() {
   else if (strcmp(setting_name, "test_lenet_func") == 0) setting_id = 2;
   else if (strcmp(setting_name, "test_lenet_base") == 0) setting_id = 3;
   else if (strcmp(setting_name, "test_lenet_perf") == 0) setting_id = 4;
+  else if (strcmp(setting_name, "test_lenet_real_func") == 0) setting_id = 5;
+  else if (strcmp(setting_name, "test_lenet_real_perf") == 0) setting_id = 7;
   else {
     printf("Invalid mainargs: \"%s\"; "
            "must be in {testfunc, testfuncv2}\n", setting_name);
@@ -66,6 +68,8 @@ int main() {
   else if (setting_id == 2) { bench_length = 1; test_bench = &benchmarks_lenet[0]; }
   else if (setting_id == 3) { bench_length = 1; test_bench = &benchmarks_lenet[1]; }
   else if (setting_id == 4) { bench_length = 1; test_bench = &benchmarks_lenet[2]; }
+  else if (setting_id == 5) { bench_length = 1; test_bench = &benchmarks_lenet[3]; }
+  else if (setting_id == 7) { bench_length = 1; test_bench = &benchmarks_lenet[4]; }
   else { bench_length = LENGTH(benchmarks_func); test_bench = benchmarks_func; }
 
   for (int i = 0; i < bench_length; i ++) {

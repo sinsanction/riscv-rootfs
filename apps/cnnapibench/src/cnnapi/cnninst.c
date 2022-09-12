@@ -336,8 +336,8 @@ inline void LoadV_P(uint64_t addr, uint8_t k, uint8_t vtag) {
   }
 }
 
-inline uint32_t Conv(uint8_t k) {
-  register uint32_t res asm ("a0");
+inline int32_t Conv(uint8_t k) {
+  register int32_t res asm ("a0");
   switch (k) {
     case 1: {
       __asm__ volatile(

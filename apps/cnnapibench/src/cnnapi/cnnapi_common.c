@@ -213,22 +213,23 @@ inline int round_up_div(int a, int b) {
   }
 }
 
-uint16_t handle_overflow(uint32_t tmp, uint8_t vwidth) {
-    if (vwidth == 0x80) {
-        return (tmp > 65535) ? 65535 : tmp;
-    }
-    else if (vwidth == 0x40) {
-        return (tmp > 255) ? 255 : tmp;
-    }
-    else if (vwidth == 0x20) {
-        return (tmp > 15) ? 15 : tmp;
-    }
-    else { //vwidth == 0x10
-        return (tmp > 3) ? 3 : tmp;
-    }
+uint16_t handle_overflow(int32_t tmp, uint8_t vwidth) {
+  tmp = (tmp < 0) ? 0 : tmp;
+  if (vwidth == 0x80) {
+      return (tmp > 65535) ? 65535 : tmp;
+  }
+  else if (vwidth == 0x40) {
+      return (tmp > 255) ? 255 : tmp;
+  }
+  else if (vwidth == 0x20) {
+      return (tmp > 15) ? 15 : tmp;
+  }
+  else { //vwidth == 0x10
+      return (tmp > 3) ? 3 : tmp;
+  }
 }
 
 inline int re_scale(int old_value, uint16_t old_scale, uint16_t old_zero, uint16_t new_scale, uint16_t new_zero) {
   int new_value = (old_value - old_zero) * new_scale / old_scale + new_zero;
-  return (new_value < 0) ? 0 : new_value;
+  return new_value;
 }

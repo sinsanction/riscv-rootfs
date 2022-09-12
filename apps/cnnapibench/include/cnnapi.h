@@ -39,6 +39,7 @@ typedef struct kernel
   uint8_t vwidth;
 
   uint16_t scale;
+  int bias;
 
   void *addr;
 } kernel_t;
@@ -51,6 +52,7 @@ typedef struct fc_filter
   uint8_t vwidth;
   uint8_t order;
   uint16_t scale;
+  int bias;
 
   void *addr;
 } fc_filter_t;
@@ -100,6 +102,18 @@ fc_filter_t *RandomInitFcFilter(uint32_t width, uint32_t height, uint32_t bits);
 
 fc_filter_t *RandomInitFcFilterArray(uint32_t width, uint32_t height, uint32_t bits, int units);
 
+image_t *InitImage_SC(uint32_t width, uint32_t height, uint32_t bits, uint8_t order, uint16_t scale, uint16_t zero_point, void *src);
+
+image_mc_t *InitImage(uint32_t width, uint32_t height, uint32_t bits, uint16_t channel, uint8_t order, uint16_t scale, uint16_t zero_point, void *src);
+
+kernel_t *InitKernel_SC(uint32_t k, uint32_t bits, uint16_t scale, int bias, void *src);
+
+kernel_mc_t *InitKernel(uint32_t k, uint32_t bits, uint16_t in_channel, uint16_t out_channel, uint16_t scale, int *bias, void *src);
+
+fc_filter_t *InitFcFilter(uint32_t width, uint32_t height, uint32_t bits, uint16_t scale, int bias, void *src);
+
+fc_filter_t *InitFcFilterArray(uint32_t width, uint32_t height, uint32_t bits, int units, uint16_t scale, int *bias, void *src);
+
 void SetOutput_SC(image_t *output_image);
 
 void SetOutputKernel_SC(kernel_t *output_kernel);
@@ -114,6 +128,10 @@ void SetOutputFcFilter(fc_filter_t *output_fc_filter);
 image_t *Transpose(image_t *input_image);
 
 image_t *MergeImage(image_t *input_image_a, image_t *input_image_b);
+
+void Rescale_SC(image_t *input_image, out_scale_t *out_scale);
+
+void Rescale(image_mc_t *input_image, out_scale_mc_t *out_scale);
 
 //arithmetic
 image_t *Convolution_SC(image_t *input_image, kernel_t *input_kernel, int strides, out_scale_t *out_scale);
@@ -133,7 +151,7 @@ image_mc_t *AvgPooling(image_mc_t *input_image, int pool_size, int strides);
 
 image_mc_t *Activation(image_mc_t *input_image, char *algorithm, uint16_t zero_point);
 
-image_t *Flatten(image_mc_t *input_image, out_scale_t *out_scale, uint8_t vwidth);
+image_t *Flatten(image_mc_t *input_image);
 
 image_t *Dense(image_t *input_image, fc_filter_t *fc_filter_array, int units, out_scale_t *out_scale);
 

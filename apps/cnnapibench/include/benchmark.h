@@ -52,6 +52,8 @@ extern "C" {
 #define LENET5        {     100, 256 KB,  0x00030001}
 #define LENET5_BASE   {     100, 128 KB,  0x00030002}
 #define LENET5_PERF   {     100, 128 KB,  0x00030003}
+#define LENET5_REAL_FUNC   {     100, 4 MB,  0x00040001}
+#define LENET5_REAL_PERF   {     100, 4 MB,  0x00040003}
 
 #define BENCHMARK_LIST(def) \
   def(conv1, "conv1", CONV1, "CNN Conv 1") \
@@ -80,7 +82,9 @@ extern "C" {
 #define BENCHMARK_LENET_LIST(def) \
   def(lenet5,      "lenet5",      LENET5,      "CNN LeNet5") \
   def(lenet5_base, "lenet5_base", LENET5_BASE, "CNN LeNet5 base") \
-  def(lenet5_perf, "lenet5_perf", LENET5_PERF, "CNN LeNet5 perf")
+  def(lenet5_perf, "lenet5_perf", LENET5_PERF, "CNN LeNet5 perf") \
+  def(lenet5_real_func, "lenet5_real_func", LENET5_REAL_FUNC, "CNN LeNet5 real func") \
+  def(lenet5_real_perf, "lenet5_real_perf", LENET5_REAL_PERF, "CNN LeNet5 real perf")
 
 // Each benchmark will run REPEAT times
 

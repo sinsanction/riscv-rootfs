@@ -48,6 +48,7 @@ kernel_t *RandomInitKernel_SC(uint32_t k, uint32_t bits) {
 
   kernel_t *kernel = (kernel_t *)malloc(sizeof(kernel_t));
   kernel->size = k;
+  kernel->bias = 0;
 
   if (bits == 8) {
     kernel->vwidth = 0x8;
@@ -127,6 +128,7 @@ fc_filter_t *RandomInitFcFilter(uint32_t width, uint32_t height, uint32_t bits) 
   fc->width = width;
   fc->height = height;
   fc->order = 1;
+  fc->bias = 0;
 
   if (bits == 8) {
     fc->vwidth = 0x8;
@@ -172,6 +174,167 @@ fc_filter_t *RandomInitFcFilterArray(uint32_t width, uint32_t height, uint32_t b
   return fc;
 }
 
+// read from array
+image_t *InitImage_SC(uint32_t width, uint32_t height, uint32_t bits, uint8_t order, uint16_t scale, uint16_t zero_point, void *src) {
+
+  image_t *img = (image_t *)malloc(sizeof(image_t));
+  img->width = width;
+  img->height = height;
+  img->order = order;
+  img->scale = scale;
+  img->zero_point = zero_point;
+
+  if (bits == 16) {
+    img->vwidth = 0x80;
+  }
+  else if (bits == 8) {
+    img->vwidth = 0x40;
+  }
+  else if (bits == 4) {
+    img->vwidth = 0x20;
+  }
+  else if (bits == 2) {
+    img->vwidth = 0x10;
+  }
+  else {
+    free(img);
+    return NULL;
+  }
+
+  int size = round_up_div(width * height * bits, 64);
+  uint64_t *img_data = (uint64_t *)malloc(sizeof(uint64_t) * size);
+  memcpy(img_data, src, round_up_div(width * height * bits, 8));
+  img->addr = (void *)img_data;
+
+  return img;
+}
+
+image_mc_t *InitImage(uint32_t width, uint32_t height, uint32_t bits, uint16_t channel, uint8_t order, uint16_t scale, uint16_t zero_point, void *src) {
+  
+  image_mc_t *img_mc = (image_mc_t *)malloc(sizeof(image_mc_t));
+  img_mc->width = width;
+  img_mc->height = height;
+  img_mc->channel = channel;
+  img_mc->order = 1;
+
+  if (! ((bits == 16) || (bits == 8) || (bits == 4) || (bits == 2)) ) {
+    free(img_mc);
+    return NULL;
+  }
+
+  for (int i=0; i<channel; i++) {
+    image_t *img = InitImage_SC(width, height, bits, order, scale, zero_point, (char *)src + round_up_div(width * height * bits, 8) * i);
+    if (order == 1) {
+      img_mc->img[i] = img;
+    }
+    else {
+      image_t *img2 = Transpose(img);
+      img_mc->img[i] = img2;
+    }
+  }
+
+  return img_mc;
+}
+
+kernel_t *InitKernel_SC(uint32_t k, uint32_t bits, uint16_t scale, int bias, void *src) {
+
+  kernel_t *kernel = (kernel_t *)malloc(sizeof(kernel_t));
+  kernel->size = k;
+  kernel->scale = scale;
+  kernel->bias = bias;
+
+  if (bits == 8) {
+    kernel->vwidth = 0x8;
+  }
+  else if (bits == 4) {
+    kernel->vwidth = 0x4;
+  }
+  else if (bits == 2) {
+    kernel->vwidth = 0x2;
+  }
+  else if (bits == 1) {
+    kernel->vwidth = 0x1;
+  }
+  else {
+    free(kernel);
+    return NULL;
+  }
+
+  int size = round_up_div(k * k * bits, 64);
+  uint64_t *kernel_data = (uint64_t *)malloc(sizeof(uint64_t) * size);
+  memcpy(kernel_data, src, round_up_div(k * k * bits, 8));
+  kernel->addr = (void *)kernel_data;
+
+  return kernel;
+}
+
+kernel_mc_t *InitKernel(uint32_t k, uint32_t bits, uint16_t in_channel, uint16_t out_channel, uint16_t scale, int *bias, void *src) {
+
+  kernel_mc_t *ker_mc = (kernel_mc_t *)malloc(sizeof(kernel_mc_t));
+  ker_mc->size = k;
+  ker_mc->in_channel = in_channel;
+  ker_mc->out_channel = out_channel;
+
+  if (! ((bits == 8) || (bits == 4) || (bits == 2) || (bits == 1)) ) {
+    free(ker_mc);
+    return NULL;
+  }
+
+  for (int i=0; i<in_channel*out_channel; i++) {
+    ker_mc->ker[i] = InitKernel_SC(k, bits, scale, bias[i / in_channel], (char *)src + round_up_div(k * k * bits, 8) * i);
+  }
+
+  return ker_mc;
+}
+
+fc_filter_t *InitFcFilter(uint32_t width, uint32_t height, uint32_t bits, uint16_t scale, int bias, void *src) {
+
+  assert(width == 1);
+
+  fc_filter_t *fc = (fc_filter_t *)malloc(sizeof(fc_filter_t));
+  fc->width = width;
+  fc->height = height;
+  fc->order = 1;
+  fc->scale = scale;
+  fc->bias = bias;
+
+  if (bits == 8) {
+    fc->vwidth = 0x8;
+  }
+  else if (bits == 4) {
+    fc->vwidth = 0x4;
+  }
+  else if (bits == 2) {
+    fc->vwidth = 0x2;
+  }
+  else if (bits == 1) {
+    fc->vwidth = 0x1;
+  }
+  else {
+    free(fc);
+    return NULL;
+  }
+
+  int size = round_up_div(width * height * bits, 64);
+  uint64_t *fc_data = (uint64_t *)malloc(sizeof(uint64_t) * size);
+  memcpy(fc_data, src, round_up_div(width * height * bits, 8));
+  fc->addr = (void *)fc_data;
+
+  return fc;
+}
+
+fc_filter_t *InitFcFilterArray(uint32_t width, uint32_t height, uint32_t bits, int units, uint16_t scale, int *bias, void *src) {
+
+  fc_filter_t *fc = (fc_filter_t *)malloc(sizeof(fc_filter_t) * units);
+
+  for (int i=0; i<units; i++) {
+    fc[i] = *InitFcFilter(width, height, bits, scale, bias[i], (char *)src + round_up_div(width * height * bits, 8) * i);
+  }
+
+  return fc;
+}
+
+// output
 void SetOutput_SC(image_t *output_image) {
 
   int width = output_image->width;
@@ -205,7 +368,7 @@ void SetOutputKernel_SC(kernel_t *output_kernel) {
   uint8_t vwidth = output_kernel->vwidth;
   uint64_t *kernel_addr = output_kernel->addr;
 
-  printf("k: %d, vwidth: %#x, scale: %d\n", k, vwidth, output_kernel->scale);
+  printf("k: %d, vwidth: %#x, scale: %d, bias: %d\n", k, vwidth, output_kernel->scale, output_kernel->bias);
 
   for (int i=0; i<k; i++) {
     for (int j=0; j<k; j++) {
@@ -245,7 +408,7 @@ void SetOutputFcFilter(fc_filter_t *output_fc_filter) {
   uint8_t vwidth = output_fc_filter->vwidth;
   uint64_t *img_addr = output_fc_filter->addr;
 
-  printf("\nwidth: %d, height: %d, vwidth: %#x, order: %d, scale: %d\n", width, height, vwidth, output_fc_filter->order, output_fc_filter->scale);
+  printf("\nwidth: %d, height: %d, vwidth: %#x, order: %d, scale: %d, bias: %d\n", width, height, vwidth, output_fc_filter->order, output_fc_filter->scale, output_fc_filter->bias);
 
   if (output_fc_filter->order == 0) {
     for (int i=0; i<height; i++) {

@@ -81,3 +81,36 @@ image_t *MergeImage(image_t *input_image_a, image_t *input_image_b) {
   return img;
 }
 
+void Rescale_SC(image_t *input_image, out_scale_t *out_scale) {
+
+  assert(input_image->order == 1);
+
+  int width = input_image->width;
+  int height = input_image->height;
+  uint8_t vwidth = input_image->vwidth;
+
+  uint64_t *in_addr = (uint64_t *)(input_image->addr);
+  uint16_t temp;
+
+  for (int j=0; j<width; j++) {
+    for (int i=0; i<height; i++) {
+      temp = get_main_value(in_addr, j * height + i, vwidth);
+      temp = re_scale(temp, input_image->scale, input_image->zero_point, out_scale->scale, out_scale->zero_point);
+      put_main_value(in_addr, j * height + i, vwidth, handle_overflow(temp, vwidth));
+    }
+  }
+
+  input_image->scale = out_scale->scale;
+  input_image->zero_point = out_scale->zero_point;
+}
+
+void Rescale(image_mc_t *input_image, out_scale_mc_t *out_scale) {
+
+  assert(input_image->order == 1);
+  assert(input_image->channel == out_scale->channel);
+
+  for (int i=0; i<input_image->channel; i++) {
+    Rescale_SC(input_image->img[i], &(out_scale->scale[i]));
+  }
+}
+

@@ -15,7 +15,7 @@ void LoadV_D_Kernel(uint64_t addr, uint8_t k, uint8_t vec_addr, uint8_t vtag);
 
 void LoadV_P(uint64_t addr, uint8_t k, uint8_t vtag);
 
-uint32_t Conv(uint8_t k);
+int32_t Conv(uint8_t k);
 
 uint16_t Pool_Max(uint8_t k);
 

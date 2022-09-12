@@ -32,27 +32,27 @@ void remap_image8();
 void remap_image9();
 
 // input image
-uint8_t *Input_Image[10];
+extern uint8_t *Input_Image[10];
 
 // c1 kernel
-int8_t *C1_Kernel;  //[6][5 * 5]
-int *C1_Bias;  //[6]
+extern int8_t *C1_Kernel;  //[6][5 * 5]
+extern int *C1_Bias;  //[6]
 
 // c3 kernel
-int8_t *C3_Kernel;  //[16 * 6][5 * 5]
-int *C3_Bias;  //[16]
+extern int8_t *C3_Kernel;  //[16 * 6][5 * 5]
+extern int *C3_Bias;  //[16]
 
 // fc1 filter
-int8_t *FC1_Filter;  //[120][256]
-int *FC1_Bias;  //[120]
+extern int8_t *FC1_Filter;  //[120][256]
+extern int *FC1_Bias;  //[120]
 
 // fc2 filter
-int8_t *FC2_Filter;  //[84][120]
-int *FC2_Bias;  //[84]
+extern int8_t *FC2_Filter;  //[84][120]
+extern int *FC2_Bias;  //[84]
 
 // fc3 filter
-int8_t *FC3_Filter;  //[10][84]
-int *FC3_Bias;  //[10]
+extern int8_t *FC3_Filter;  //[10][84]
+extern int *FC3_Bias;  //[10]
 
 #ifdef __cplusplus
 }

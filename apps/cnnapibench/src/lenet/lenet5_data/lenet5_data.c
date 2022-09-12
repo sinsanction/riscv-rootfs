@@ -1,5 +1,28 @@
 #include "lenet5_data.h"
 
+// input image
+uint8_t *Input_Image[10];
+
+// c1 kernel
+int8_t *C1_Kernel;  //[6][5 * 5]
+int *C1_Bias;  //[6]
+
+// c3 kernel
+int8_t *C3_Kernel;  //[16 * 6][5 * 5]
+int *C3_Bias;  //[16]
+
+// fc1 filter
+int8_t *FC1_Filter;  //[120][256]
+int *FC1_Bias;  //[120]
+
+// fc2 filter
+int8_t *FC2_Filter;  //[84][120]
+int *FC2_Bias;  //[84]
+
+// fc3 filter
+int8_t *FC3_Filter;  //[10][84]
+int *FC3_Bias;  //[10]
+
 // c1 kernel
 int8_t c1kernel[6][5 * 5] = {   { -9, 35, 17, -50, -36,  -48, -73, -60, 2, 19,  -43, -3, -41, 12, 25,  30, 36, 29, 14, 27,  59, 36, 37, 42, -15 },
                                 { 24, 14, -5, 36, 28,  18, 20, -27, -11, 7,  52, 30, -9, -41, -12,  7, 28, -37, 39, 44,  -27, 24, -17, 43, 51 },
